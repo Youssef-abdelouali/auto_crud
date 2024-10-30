@@ -1,0 +1,55 @@
+/* autosCSS.css */
+
+body {
+    font-family: 'Press Start 2P', cursive;
+    background-color: #1a1a1a;
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+  }
+  
+  #gameContainer {
+    width: 400px;
+    padding: 2em;
+    background-color: #333;
+    border-radius: 8px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.5);
+    text-align: center;
+  }
+  
+  p {
+    font-size: 1.2em;
+    color: #ff4d4d;
+    margin-bottom: 1.5em;
+  }
+  
+  button.nes-btn.is-success {
+    width: 48%;
+    font-size: 1em;
+    color: #fff;
+    background-color: #4CAF50;
+    border-radius: 5px;
+    margin-right: 2%;
+  }
+  
+  button.nes-btn.is-success:hover {
+    background-color: #45a049;
+  }
+  
+  a.nes-btn.is-error {
+    width: 48%;
+    font-size: 1em;
+    color: #fff;
+    background-color: #d9534f;
+    border-radius: 5px;
+    text-align: center;
+    display: inline-block;
+  }
+  
+  a.nes-btn.is-error:hover {
+    background-color: #c9302c;
+  }
+  

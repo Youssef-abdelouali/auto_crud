@@ -1,0 +1,91 @@
+/* Reset margins and padding for cleaner styling */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Body Styling */
+body {
+    background-color: #1e1e1e;
+    color: #f5f5f5;
+    font-family: 'Press Start 2P', cursive;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+/* Main Container */
+.nes-container {
+    width: 90%;
+    max-width: 400px;
+    padding: 2rem;
+    border-radius: 8px;
+}
+
+/* Centering Form Content */
+#loginContainer {
+    text-align: center;
+}
+
+/* Headline */
+h1 {
+    font-size: 1.5rem;
+    color: #ffd700;
+    margin-bottom: 1.5rem;
+}
+
+/* Error Message Styling */
+p {
+    color: #ff4d4d;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+/* Label and Input Styling */
+label {
+    font-size: 1rem;
+    color: #f5f5f5;
+    display: block;
+    margin: 1rem 0 0.5rem;
+}
+
+input[type="text"],
+input[type="password"] {
+    width: 100%;
+    padding: 0.5rem;
+    font-size: 1rem;
+    border-radius: 4px;
+    border: 2px solid #333;
+    background-color: #2a2a2a;
+    color: #f5f5f5;
+}
+
+/* Button Styling */
+button.nes-btn.is-success,
+a.nes-btn.is-error {
+    width: 48%;
+    margin-top: 1rem;
+    font-size: 1rem;
+}
+
+/* Adjust button alignment */
+button.nes-btn.is-success {
+    margin-right: 2%;
+}
+
+a.nes-btn.is-error {
+    text-align: center;
+    display: inline-block;
+}
+
+/* NES Balloon & Brikko Positioning */
+.nes-balloon {
+    margin-bottom: 1.5rem;
+}
+
+#secondBrikko {
+    display: block;
+    margin: 1.5rem auto 0;
+}

@@ -1,0 +1,93 @@
+/* Basic reset and font styling */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    font-family: 'Press Start 2P', cursive;
+    background-color: #121212;
+    color: #f5f5f5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+  }
+  
+  /* NES container styling */
+  .nes-container {
+    width: 80%;
+    padding: 2em;
+    margin-top: 20px;
+  }
+  
+  /* Section styling for content layout */
+  #indexContainer {
+    text-align: center;
+  }
+  
+  /* Balloon and Icon styling */
+  .nes-balloon {
+    font-size: 1em;
+    padding: 1.5em;
+    margin-bottom: 20px;
+  }
+  
+  .nes-bcrikko {
+    font-size: 3em;
+  }
+  
+  /* Table styling */
+  table {
+    width: 100%;
+    margin: 20px 0;
+    border-collapse: collapse;
+  }
+  
+  table, th, td {
+    border: 2px solid #f5f5f5;
+    padding: 10px;
+    text-align: center;
+  }
+  
+  th {
+    background-color: #222;
+  }
+  
+  td a {
+    color: #2196F3;
+    text-decoration: none;
+  }
+  
+  td a:hover {
+    text-decoration: underline;
+  }
+  
+  /* Button styling */
+  .nes-btn {
+    margin: 10px;
+  }
+  
+  .nes-btn.is-success {
+    color: white;
+    background-color: #4CAF50;
+  }
+  
+  .nes-btn.is-error {
+    color: white;
+    background-color: #F44336;
+  }
+  
+  /* Links for Add Entry and Logout */
+  a {
+    color: #FF9800;
+    font-weight: bold;
+    margin: 5px;
+    display: inline-block;
+  }
+  
+  a:hover {
+    text-decoration: underline;
+  }
+  

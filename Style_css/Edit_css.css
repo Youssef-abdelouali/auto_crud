@@ -1,0 +1,81 @@
+/* Basic Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  /* Body Styling */
+  body {
+    font-family: 'Press Start 2P', cursive;
+    background-color: #1b1b32;
+    color: #f8f8f2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+  }
+  
+  /* Main Container Styling */
+  #gameContainer {
+    width: 90%;
+    max-width: 600px;
+    background-color: #2d2d44;
+    padding: 20px;
+    border: 3px solid #00c853;
+    border-radius: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
+  }
+  
+  /* Header Styling */
+  h1 {
+    text-align: center;
+    font-size: 1.5rem;
+    color: #ffd54f;
+    margin-bottom: 20px;
+  }
+  
+  /* Input Fields Styling */
+  form p {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+  }
+  
+  input[type="text"] {
+    width: 70%;
+    padding: 8px;
+    font-size: 1rem;
+    border: 2px solid #00c853;
+    border-radius: 5px;
+    color: #2d2d44;
+  }
+  
+  /* Button Styling */
+  button.nes-btn, a.nes-btn {
+    font-size: 0.9rem;
+    padding: 10px 20px;
+    margin: 10px 0;
+  }
+  
+  button.is-success {
+    background-color: #4caf50;
+    color: white;
+  }
+  
+  a.is-error {
+    background-color: #e53935;
+    color: white;
+    text-decoration: none;
+  }
+  
+  /* Flash Message Styling */
+  p[style="color:red"] {
+    color: #ff5252;
+    font-size: 0.9rem;
+    text-align: center;
+    margin-bottom: 15px;
+  }
+  
