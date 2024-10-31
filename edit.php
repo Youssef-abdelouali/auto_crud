@@ -1,181 +1,89 @@
 <?php
+    require_once('pdo.php');
+    session_start(); 
+    if (! isset($_SESSION['name'])) {
+        die('ACCES DENIED');
+    }
+    if (isset($_POST['cancel'])) {
+        header('Location: index.php');
+    }
 
-session_start();
-require_once "pdo.php";
+    if (isset($_POST['Save'])) {
+        if (isset($_POST['make']) && isset($_POST['year']) && isset($_POST['model']) && isset($_POST['mileage'])) {
+            if (!(is_numeric($_POST['year']) && is_numeric($_POST['mileage']))) {
+                $_SESSION['error'] = "Year and mileage must be numeric";
+                header('Location: edit.php?auto_id='.$_POST['auto_id']);
+                return;
+            }
 
-// if we attempt to access edit.php without loggin in
-if (! isset($_SESSION['email'])) {
+            if (strlen($_POST['make']) < 2 || strlen($_POST['model']) < 2) {
+                $_SESSION['error'] = "Make and model are required";
+                header('Location: edit.php?auto_id='.$_POST['auto_id']);
+                return; 
+            }
+            $stmt = $pdo->prepare('UPDATE autos SET make = :make, model = :model, year = :year, mileage = :mileage WHERE auto_id = :id'); 
+            $stmt->execute(array(
+                ':id' => $_POST['auto_id'],
+                ':make' => $_POST['make'],
+                ':model' => $_POST['model'],
+                ':year' => $_POST['year'],
+                ':mileage' => $_POST['mileage']
+            )); 
+            $_SESSION['success'] = "Record updated"; 
+            header('Location: index.php');
+            return; 
+        } else {
+            $_SESSION['error'] = "All fields are required";
+            header('Location: edit.php?auto_id='.$_POST['auto_id']);
+            return; 
+        }
+    }
 
-  die("ACCESS DENIED");
-}
-
-############################# Input Validation #################################
-
-$stmt = $pdo -> prepare("SELECT * FROM autos WHERE auto_id = :xyz");
-$stmt -> execute(array(":xyz" => $_GET['auto_id']));
-$row = $stmt -> fetch(PDO::FETCH_ASSOC);
-
-if ($row === false) {
- $_SESSION['error'] = 'Bad value for user_id';
- header('Location: index.php');
- return;
-}
-
-$mk = htmlentities($row['make']);
-$mo = htmlentities($row['model']);
-$yr = htmlentities($row['year']);
-$mi = htmlentities($row['mileage']);
-
-
-if ( isset($_POST['make']) && isset($_POST['model']) && isset($_POST['year'])
-     && isset($_POST['mileage'])) {
-
-       // POST - redirect - GET
-       $_SESSION['make'] = $_POST['make'];
-       $_SESSION['model'] = $_POST['model'];
-       $_SESSION['year'] = $_POST['year'];
-       $_SESSION['mileage'] = $_POST['mileage'];
-
-       // checks for year and mileage
-       $yearLen = strlen($_SESSION['year']);
-       $mileLen = strlen($_SESSION['mileage']);
-       // error_log("str len of year:".strlen($yearLen));
-
-       if (is_numeric($_SESSION['year']) === true) {
-         $yearNum = true;
-         error_log("year input is numeric");
-       } else {
-         error_log("year input is not numeric");
-         $yearNum = false;
-       }
-
-       if (is_numeric($_SESSION['mileage']) === true) {
-         error_log("mile input is numeric");
-         $mileNum = true;
-       } else {
-         error_log("mile input is not numeric");
-         $mileNum = false;
-       }
-
-       // here we check for make and model
-       $makeLen = strlen($_SESSION['make']);
-       $modelLen = strlen($_SESSION['model']);
-
-       // here we check if make and model are set
-       if ((! isset($_SESSION['make']))) {
-         error_log($makeLen.": make input not found");
-         $makeSet = false;
-
-       } else if ((isset($_SESSION['make']))) {
-         error_log($makeLen.": make input has been found");
-         $makeSet = true;
-       }
-
-       if ((! isset($_SESSION['model']))) {
-         error_log($makeLen.": model input not found");
-         $modelSet = false;
-
-       } else if ((isset($_SESSION['model']))) {
-         error_log($makeLen.": model input has been found");
-         $modelSet = true;
-       }
-
-
-       // checking whether or not user data is valid input
-
-      if ((strlen($makeSet) < 1) || (strlen($modelSet) < 1) || ($yearLen < 1) || ($mileLen < 1)) {
-
-        error_log("All fields are required");
-        error_log("str len of year:".strlen($yearNum));
-        $_SESSION["error"] = 'All fields are required';
-        header("Location: edit.php?auto_id=".$_REQUEST['auto_id']);
+    $stmt = $pdo->prepare('SELECT auto_id, make, model, year, mileage FROM autos WHERE auto_id = :id');
+    $stmt->execute(array(
+        ":id" => $_GET['auto_id']
+    )); 
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    if ($row == false) {
+        $_SESSION['error'] = 'Bad auto id';
+        header('Location: index.php');
         return;
-
-      } elseif (($makeSet === true) && ($modelSet === true) && ($yearNum != true) || ($mileNum != true)) {
-
-         error_log("Mileage and year must be numeric");
-         $_SESSION["error"] = 'Mileage and year must be numeric';
-         header("Location: edit.php?auto_id=".$_REQUEST['auto_id']);
-         return;
-
-       } elseif ((($makeSet === false) || strlen($_SESSION['make']) < 1) && ($makeSet === true) && ($yearNum === true) && ($mileNum === true)) {
-
-         error_log("Make is required");
-         $_SESSION["error"] = 'Make is required';
-         header("Location: edit.php?auto_id=".$_REQUEST['auto_id']);
-         return;
-
-       } elseif ((($modelSet === false) || strlen($_SESSION['model']) < 1) && ($makeSet === true) && ($yearNum === true) && ($mileNum === true)) {
-
-         error_log("Model is required");
-         $_SESSION["error"] = 'Model is required';
-         header("Location: edit.php?auto_id=".$_REQUEST['auto_id']);
-         return;
-
-         // all correct, we proceed into updating the data and redirecting
-       } elseif (($makeSet === true) && ($makeSet === true) && ($yearNum === true) && ($mileNum === true)) {
-
-         error_log("Record Updated");
-
-         $sql = "UPDATE autos SET make = :make, model = :model, year = :year, mileage = :mileage WHERE auto_id = :auto_id";
-         $stmt = $pdo -> prepare($sql);
-         $stmt -> execute(array(
-           ':make' => $_POST['make'],
-           ':model' => $_POST['model'],
-           ':year' => $_POST['year'],
-           ':mileage' => $_POST['mileage'],
-           ':auto_id' => $_GET['auto_id'],
-         ));
-
-
-         $_SESSION['success'] = 'Record updated';
-         header('Location: index.php');
-         return;
-       }
- }
-
+    }
 ?>
 
-
-<!DOCTYPE html>
-<html lang="en" dir="ltr">
-  <head>
-    <meta charset="utf-8">
-    <title>Youssef abdelouali - Autos DB CRUD</title>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Youssef abdelouali's Autos Database</title>
+    <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous"> -->
     <link rel="stylesheet" href="./Style_css/Edit_css.css">
-    <link href="https://fonts.googleapis.com/css?family=Press+Start+2P" rel="stylesheet">
-    <link href="https://unpkg.com/nes.css/css/nes.css" rel="stylesheet" />
-  </head>
-  <body>
-
-    <section class="nes-container is-dark" id="gameContainer">
-
-    <h1>Editing Automobile</h1>
-
-    <?php
-    // here we set the success / error flash message
-    if (isset($_SESSION["error"])) {
-      echo('<p style = "color:red">').htmlentities($_SESSION["error"])."</p>\n";
-      unset($_SESSION["error"]);
-    }
-    ?>
-
-    <form method="post">
-    <p>Make:
-    <input type="text" name="make" value="<?= $mk ?>"></p>
-    <p>Model:
-    <input type="text" name="model" value="<?= $mo ?>"></p>
-    <p>Year:
-    <input type="text" name="year" value="<?= $yr ?>"></p>
-    <p>Mileage:
-    <input type="text" name="mileage" value="<?= $mi ?>"></p>
-    <p>
-    <button class="nes-btn is-success" type="submit" value="Save"/>Save</button>
-    <a class="nes-btn is-error" href="index.php">Cancel</a>
-    </p>
-    </form>
-
-  </section>
-
-  </body>
+</head>
+<body>
+    <div class="text-white text-center w-100 p-5">
+        <?php 
+            if (isset($_SESSION['error'])) {
+                echo "<p class='bg-danger'>".$_SESSION['error']."</p>"; 
+                unset($_SESSION['error']);
+            }
+        ?>
+        <h1>New changes for <?= $row['make']." ".$row['model'] ?></h1>
+        <form method="post" class="d-flex flex-column w-25 m-auto">
+            <label for="make">Make: </label>
+            <input type="text" name="make" id="make" value="<?= $row['make'] ?>"><br/>
+            <label for="model">Model: </label>
+            <input type="text" name="model" id="model" value="<?= $row['model'] ?>"><br/>
+            <label for="year">Year: </label>
+            <input type="text" name="year" id="year" value="<?= $row['year'] ?>"><br/>
+            <label for="mileage">Mileage: </label>
+            <input type="text" name="mileage" id="mileage" value="<?= $row['mileage'] ?>"><br/>
+            <input type="hidden" name="auto_id" value="<?= $row['auto_id']?>">
+            <div class='d-flex flex-row position-relative m-auto w-100'>
+                <input class="btn btn-success m-2 w-50" type="submit" name="Save" value="Save">
+                <input class="btn btn-light m-2 w-50" type="submit" name="cancel" value="Cancel">
+            </div>
+        </form>
+    </div>
+</body>
 </html>

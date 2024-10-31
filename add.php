@@ -1,154 +1,82 @@
 <?php
+    session_start(); 
+    require_once("pdo.php");
+    // Die if the user is not logged in 
+    if (! isset($_SESSION['name'])) {
+        die('ACCESS DENIED');
+    }
 
-session_start();
-require_once "pdo.php";
-
-// if we attempt to access add.php without loggin in
-if (! isset($_SESSION['email'])) {
-
-  die("ACCESS DENIED");
-}
-
-############################# Input Validation #################################
-
-if ( isset($_POST['make']) && isset($_POST['model']) && isset($_POST['year'])
-     && isset($_POST['mileage'])) {
-
-       // POST - redirect - GET
-       $_SESSION['make'] = $_POST['make'];
-       $_SESSION['model'] = $_POST['model'];
-       $_SESSION['year'] = $_POST['year'];
-       $_SESSION['mileage'] = $_POST['mileage'];
-
-       // checks for year and mileage
-       if (is_numeric($_SESSION['year']) === true) {
-         $yearNum = true;
-         error_log("year input is numeric");
-       } else {
-         error_log("year input is not numeric");
-         $yearNum = false;
-       }
-
-       if (is_numeric($_SESSION['mileage']) === true) {
-         error_log("mile input is numeric");
-         $mileNum = true;
-       } else {
-         error_log("mile input is not numeric");
-         $mileNum = false;
-       }
-
-       // here we check for make and model
-       $makeLen = strlen($_SESSION['make']);
-       $modelLen = strlen($_SESSION['model']);
-
-       // here we check if make and model are set
-       if ((! isset($_SESSION['make']))) {
-         error_log($makeLen.": make input not found");
-         $makeSet = false;
-
-       } else if ((isset($_SESSION['make']))) {
-         error_log($makeLen.": make input has been found");
-         $makeSet = true;
-       }
-
-       if ((! isset($_SESSION['model']))) {
-         error_log($makeLen.": model input not found");
-         $modelSet = false;
-
-       } else if ((isset($_SESSION['model']))) {
-         error_log($makeLen.": model input has been found");
-         $modelSet = true;
-       }
-
-       // checking whether or not user data is valid input
-
-      if ((strlen($makeSet) < 1) || (strlen($modelSet) < 1) || (strlen($yearNum) < 1) || (strlen($mileNum) < 1)) {
-
-        error_log("All fields are required");
-        $_SESSION["error"] = 'All fields are required';
-        header("Location: add.php");
-        return;
-
-       } elseif (($makeSet === true) && ($modelSet === true) && ($yearNum === false) || ($mileNum === false)) {
-
-         error_log("Mileage and year must be numeric");
-         $_SESSION["error"] = 'Mileage and year must be numeric';
-         header("Location: add.php");
-         return;
-
-       } elseif ((($makeSet === false) || strlen($_SESSION['make']) < 1) && ($makeSet === true) && ($yearNum === true) && ($mileNum === true)) {
-
-         error_log("Make is required");
-         $_SESSION["error"] = 'Make is required';
-         header("Location: add.php");
-         return;
-
-       } elseif ((($modelSet === false) || strlen($_SESSION['model']) < 1) && ($makeSet === true) && ($yearNum === true) && ($mileNum === true)) {
-
-         error_log("Model is required");
-         $_SESSION["error"] = 'Model is required';
-         header("Location: add.php");
-         return;
-
-         // all correct, we proceed into inserting the data and redirecting
-       } elseif (($makeSet === true) && ($makeSet === true) && ($yearNum === true) && ($mileNum === true)) {
-
-         error_log("Record Inserted");
-
-         $stmt = $pdo->prepare('INSERT INTO autos (make, model, year, mileage) VALUES ( :mk, :mo, :yr, :mi)');
-
-         $stmt->execute(array(
-              ':mk' => $_SESSION['make'],
-              ':mo' => $_SESSION['model'],
-              ':yr' => $_SESSION['year'],
-              ':mi' => $_SESSION['mileage']));
-
-          $_SESSION['success'] = "Record added";
-          header("Location: index.php");
-          return;
-       }
- }
-
-
-
+    // Redirect to view.php if the cancel button has been pressed 
+    if (isset($_POST['Cancel'])) {
+        header('Location: index.php');
+        return; 
+    }
+    // If the "Add" button has been pressed, proceed to validate the data provided by the user
+    if (isset($_POST['Add']) && isset($_POST['year']) && isset($_POST['mileage'])){
+        if(!isset($_POST['make']) || strlen($_POST['make']) < 1){
+            $_SESSION['error'] = "All fields are required";
+            header('Location: add.php');
+            return;
+        }
+        else if (is_numeric($_POST['year']) && is_numeric($_POST['mileage'])) {
+            $stmt = $pdo->prepare('INSERT INTO autos(make, model, year, mileage) VALUES (:make, :model, :year, :mileage)');
+            $stmt->execute(array(
+                ':make' => $_POST['make'],
+                ':model' => $_POST['model'],
+                ':year' => $_POST['year'],
+                ':mileage' => $_POST['mileage']
+            ));
+            $_SESSION['success'] = "Added";
+            header('Location: index.php');
+            return;
+        }
+        else {
+            $_SESSION['error'] = "Mileage and year must be numeric";
+            header('Location: add.php');
+            return; 
+        }
+    }
 ?>
 
+
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
-  <head>
-    <meta charset="utf-8">
-    <title>Youssef abdelouali - Autos DB CRUD</title>
-    <link rel="stylesheet" href="CSS/autosCSS.css">
-    <link href="https://fonts.googleapis.com/css?family=Press+Start+2P" rel="stylesheet">
-    <link href="https://unpkg.com/nes.css/css/nes.css" rel="stylesheet" />
-    <link rel="stylesheet" href="./Style_css/autosCSS.css">
+<html>
+<head>
+<title>Youssef abdelouali's Autos Database</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="text-white text-center w-100 p-5">
+        <h1>Autos Database</h1>
+        <?php
+        if ( isset($_SESSION['name']) ) {
+            echo "<h2>Tracking autos for: ";
+            echo htmlentities($_SESSION['name']);
+            echo "</h2>\n";
+        }
 
-  </head>
-  <body>
+        if (isset($_SESSION['error'])) {
+            echo('<p class="bg-danger">'.htmlentities($_SESSION['error'])."</p>\n");
+            unset($_SESSION['error']); 
+        }
+        ?>
 
-  <section class="nes-container is-dark" id="gameContainer">
-
-    <h1>Tracking automobiles for <?= $_SESSION['email'] ?></h1>
-
-    <?php
-    // here we set the success / error flash message
-    if (isset($_SESSION["error"])) {
-      echo('<p style = "color:red">').htmlentities($_SESSION["error"])."</p>\n";
-      unset($_SESSION["error"]);
-    }
-    ?>
-
-    <form method="post">
-      <p>Make: <input type="text" name="make"> </p>
-      <p>Model: <input type="text" name="model"> </p>
-      <p>Year: <input type="text" name="year"> </p>
-      <p>Mileage: <input type="text" name="mileage"> </p>
-
-      <button class="nes-btn is-success" type="submit" value="Add New">Add New</button> <a class="nes-btn is-error" id="addCancelButton" href="index.php">Cancel</a>
-
-    </form>
-
-    </section>
-
-  </body>
+        <h2>Add a new vehicle to the database: </h2>
+        <form method="post" class="d-flex flex-column w-25 m-auto">
+            <label for="make">Make: </label>
+            <input type="text" name="make" id="make"><br/>
+            <label for="model">Model: </label>
+            <input type="text" name="model" id="model"><br/>
+            <label for="year">Year: </label>
+            <input type="text" name="year" id="year"><br/>
+            <label for="mileage">Mileage: </label>
+            <input type="text" name="mileage" id="mileage"><br/>
+            <div class="d-flex flex-row position-relative m-auto w-100">
+                <input class="btn btn-success m-2 w-50" type="submit" name="Add" value="Add">
+                <input class="btn btn-danger m-2 w-50" type="submit" name="Cancel" value="Cancel">
+            </div>
+        </form>
+    </div>
+</body>
 </html>

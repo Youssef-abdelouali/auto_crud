@@ -1,71 +1,53 @@
-
 <?php
+    require_once('pdo.php');
+    session_start();
+    if (!isset($_SESSION['name'])) {
+        die('ACCESS DENIED'); 
+    }
 
+    if (isset($_POST['cancel'])) {
+        header('Location: index.php');
+        return; 
+    }
 
-session_start();
-require_once "pdo.php";
+    if (isset($_POST['Delete'])) {
+        $stmt = $pdo->prepare('DELETE FROM autos WHERE auto_id = :id');
+        $stmt->execute(array(
+            ":id" => $_POST['auto_id']
+        ));
+        $_SESSION['success'] = "Record deleted"; 
+        header('Location: index.php'); 
+        return; 
+    }
 
-// if we attempt to access delete.php without loggin in
-if (! isset($_SESSION['email'])) {
-
-  die("ACCESS DENIED");
-}
-
-
-// here we take the auto_id from the GET
-$deleteSelection = $_GET['auto_id'];
-error_log("to delete:".$deleteSelection);
-
-############################# Input Validation #################################
-
-$stmt = $pdo -> prepare("SELECT * FROM autos WHERE auto_id = :xyz");
-$stmt -> execute(array(":xyz" => $_GET['auto_id']));
-$row = $stmt -> fetch(PDO::FETCH_ASSOC);
-
-if ($row === false) {
- $_SESSION['error'] = 'Deleted ';
- header('Location: index.php');
- return;
-}
-
-// if we have clicked the delete button, runs the SQL command to delete based on ID
-if (isset($_POST['delete'])) {
-
-  $_SESSION['delete'] = $_POST['delete'];
-
-  $stmt = $pdo->prepare("DELETE FROM autos WHERE auto_id = :xyz");
-  $stmt->execute(array(":xyz" => $_GET['auto_id']));
-  header('Location: index.php');
-  return;
-
-  }
-
+    $stmt = $pdo->prepare('SELECT auto_id, make, model FROM autos WHERE auto_id = :id');
+    $stmt->execute(array(
+        ":id" => $_GET['auto_id']
+    ));
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    if ($row == false) {
+        $_SESSION['error'] = "Bad value for id";
+        header("Location: index.php");
+        return; 
+    }
 ?>
-
-<!DOCTYPE html>
-<html lang="en" dir="ltr">
-  <head>
-    <meta charset="utf-8">
-    <title>Youssef abdelouali - Autos DB CRUD</title>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Youssef abdelouali's Autos Database</title>
+    <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous"> -->
     <link rel="stylesheet" href="./Style_css/delete_css.css">
-    <link href="https://fonts.googleapis.com/css?family=Press+Start+2P" rel="stylesheet">
-    <link href="https://unpkg.com/nes.css/css/nes.css" rel="stylesheet" />
-    
-
-  </head>
-  <body>
-
-    <section class="nes-container is-dark" id="gameContainer">
-
-    <p>Confirm: Deleting <?= htmlentities($row['make']) ?> </p>
-
-    <form method="post">
-      <input type="hidden" name="auto_id" value="<?= $row['auto_id'] ?>">
-      <button class="nes-btn is-success" type="submit" name="delete" value="Delete">Delete</button>
-      <a class="nes-btn is-error" href="index.php">Cancel</a>
-    </form>
-
-    </section>
-
-  </body>
+</head>
+<body>
+    <div class="text-white text-center w-100 p-5 position-absolute top-50">
+        <h3>Confirm deleting <?= htmlentities($row['make'])." ". htmlentities($row['model'])?> ?</h3>
+        <form method="post">
+            <input type="hidden" name="auto_id" value="<?= $row['auto_id'] ?>">
+            <input class="btn btn-danger" type="submit" name="Delete" value="Delete">
+            <input class="btn btn-light" type="submit" name= "cancel" value = "Cancel">
+        </form>
+    </div>
+</body>
 </html>

@@ -1,18 +1,8 @@
 <?php
-
-session_start();
-session_destroy();
-header("Location: index.php");
-
+    // Destroy the session to erase $_SESSION['name'] and the rest of the values stored there
+    // So the user can't log in again unless the correct password is provided
+    session_start();
+    session_destroy();
+    header('Location: index.php');
+    return; 
 ?>
-
-<!DOCTYPE html>
-<html lang="en" dir="ltr">
-  <head>
-    <meta charset="utf-8">
-    <title>Youssef abdelouali - Autos DB CRUD</title>
-  </head>
-  <body>
-
-  </body>
-</html>
